@@ -1,0 +1,5 @@
+TODO:
+
+- Get vibe data from center point, for now
+- Draw polygons in current view
+- Get edges of mapview and send to boyfriend

@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:http/http.dart';
@@ -115,6 +117,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+
 class _MyHomePageState extends State<MyHomePage> {
   // Instance of WebView plugin
   final flutterWebViewPlugin = FlutterWebviewPlugin();
@@ -207,11 +210,11 @@ class _MyHomePageState extends State<MyHomePage> {
               Response artistResponse = await get(Uri.encodeFull("https://api.spotify.com/v1/artists?ids=" + artistCommaString), headers:requestHeaders);
               if (res.statusCode == 200) {
                 Map<String, dynamic> artistMap = jsonDecode(artistResponse.body);
-                print(artistMap);
                 List <dynamic> artistList = artistMap["artists"];
 
                 for (int i  = 0; i < artistList.length; i++) {
                   tracks[i]["genre"] = artistList[i]["genres"][0];
+                  print(tracks[i]["genre"]);
                 }
 
                 vibes["tracks"] = tracks;
@@ -219,11 +222,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   'Content-Type': 'application/json',
                 };
                 Response vibePost = await post("https://vibecheck.tk/api/vibe", headers:vibeHeaders ,body:json.encode(vibes));
-                if (vibePost.statusCode == 200) {
+                if (vibePost.statusCode == 201) {
                   print("Vibes have been posted");
                 }
                 else {
-                  print(vibePost.body);
+                  print(vibePost.body + "did not work");
                 }
               }
               else {

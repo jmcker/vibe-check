@@ -130,6 +130,7 @@ class _MapState extends State<MapScreen> {
                 target: _center,
                 zoom: 11.0,
               ),
+              rotateGesturesEnabled: false,
               compassEnabled: false,
               myLocationEnabled: true,
               circles: Set<Circle>.of(circles),

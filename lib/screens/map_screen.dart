@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:http/http.dart';
 
 class MapScreen extends StatefulWidget {
   @override
@@ -25,27 +28,46 @@ class _MapState extends State<MapScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    _getLocation();
+    _getBounds();
   }
 
-  _getLocation() async {
-    var location = new Location();
-    try {
-      currentLocation = await location.getLocation();
+  _getBounds() async {
+    LatLngBounds bounds = await this.mapController.getVisibleRegion();
+    print(bounds.northeast.toString());
+    print(bounds.southwest.toString());
 
-      print("locationLatitude: ${currentLocation.latitude.toString()}");
-      print("locationLongitude: ${currentLocation.longitude.toString()}");
-      LatLngBounds bounds = await this.mapController.getVisibleRegion();
-      print('#################################');
-      print(bounds.northeast.toString());
-      print(bounds.southwest.toString());
-      print('#################################');
-      setState(
-          () {}); //rebuild the widget after getting the current location of the user
-    } on Exception {
-      currentLocation = null;
+    var lat_min, lon_min, lat_max, lon_max;
+
+    // Find min latitude
+    if (bounds.northeast.latitude < bounds.southwest.latitude) {
+      lat_min = bounds.northeast.latitude.toString();
+      lat_max = bounds.southwest.latitude.toString();
+    } else {
+      lat_min = bounds.southwest.latitude.toString();
+      lat_max = bounds.northeast.latitude.toString();
+    }
+
+    // Find min longitude
+    if (bounds.northeast.longitude < bounds.southwest.longitude) {
+      lon_min = bounds.northeast.longitude.toString();
+      lon_max = bounds.southwest.longitude.toString();
+    } else {
+      lon_min = bounds.southwest.longitude.toString();
+      lon_max = bounds.northeast.longitude.toString();
+    }
+
+    Response resp = await get(
+        'https://vibecheck.tk/api/vibe?lat_min=${lat_min}&lat_max=${lat_max}&lon_min=${lon_min}&lon_max=${lon_max}');
+
+    if (resp.statusCode == 200) {
+      Map<String, dynamic> map = jsonDecode(resp.body);
+
+      print("We got the vibes");
+      print(map);
     }
   }
+
+  _getLocation() async {}
 
   @override
   Widget build(BuildContext context) {

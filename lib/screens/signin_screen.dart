@@ -14,23 +14,22 @@ const kAndroidUserAgent =
 
 final String spotifyUri = Uri.encodeFull(
     'https://accounts.spotify.com/authorize' +
-    '?response_type=code' +
-    '&client_id=c451eab95a624bfbb8cf67a84b11b985' +
-    '&scope=user-read-recently-played' +
-    '&redirect_uri=https://vibecheck.tk/auth' +
-    '&show_dialog=true'
-);
+        '?response_type=code' +
+        '&client_id=c451eab95a624bfbb8cf67a84b11b985' +
+        '&scope=user-read-recently-played' +
+        '&redirect_uri=https://vibecheck.tk/auth' +
+        '&show_dialog=true');
 
-final Map<String, RegExp> regExMap= {
-  'Classical' : RegExp(r'Classical', caseSensitive: false),
-  'Jazz' : RegExp(r'Jazz|Blues', caseSensitive: false),
-  'R&B' : RegExp(r'R&B', caseSensitive: false),
-  'Country' : RegExp(r'Country', caseSensitive: false),
-  'Pop' : RegExp(r'Pop|Hip hop', caseSensitive: false),
-  'Electronic' : RegExp(r'Electronic|House|Electronica', caseSensitive: false),
-  'Rap' : RegExp(r'Rap', caseSensitive: false),
-  'Rock' : RegExp(r'Rock|Punk', caseSensitive: false),
-  'Metal' : RegExp(r'Metal|Punk', caseSensitive: false)
+final Map<String, RegExp> regExMap = {
+  'Classical': RegExp(r'Classical', caseSensitive: false),
+  'Jazz': RegExp(r'Jazz|Blues', caseSensitive: false),
+  'R&B': RegExp(r'R&B', caseSensitive: false),
+  'Country': RegExp(r'Country', caseSensitive: false),
+  'Pop': RegExp(r'Pop|Hip hop', caseSensitive: false),
+  'Electronic': RegExp(r'Electronic|House|Electronica', caseSensitive: false),
+  'Rap': RegExp(r'Rap', caseSensitive: false),
+  'Rock': RegExp(r'Rock|Punk', caseSensitive: false),
+  'Metal': RegExp(r'Metal|Punk', caseSensitive: false)
 };
 
 final Map<String, Color> genreColorMap = {
@@ -127,11 +126,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<bool> getTokens(spotifyCode) async {
-
     Response resp = await get('https://vibecheck.tk/api/auth?code=' + code);
 
     if (resp.statusCode == 200) {
-
       Map<String, dynamic> map = jsonDecode(resp.body);
 
       access_token = map['access_token'];
@@ -142,14 +139,12 @@ class _MyHomePageState extends State<MyHomePage> {
       print('Got Spotify access token.');
 
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }
 
   Future<Map<String, dynamic>> getAndFillGenres(vibes) async {
-
     List<dynamic> tracks = vibes['tracks'];
 
     // Now put all of the artist id's in an array to send to get genre
@@ -160,23 +155,21 @@ class _MyHomePageState extends State<MyHomePage> {
     artistCommaString += tracks[tracks.length - 1]['artist_id'];
 
     String requestUri = Uri.encodeFull(
-      'https://api.spotify.com/v1/artists?ids=' +
-      artistCommaString
-    );
+        'https://api.spotify.com/v1/artists?ids=' + artistCommaString);
 
-    Response resp = await get(
-        requestUri,
-        headers: this.getAuthHeaders()
-    );
+    Response resp = await get(requestUri, headers: this.getAuthHeaders());
 
     if (resp.statusCode == 200) {
-
       Map<String, dynamic> artistMap = jsonDecode(resp.body);
       List<dynamic> artistList = artistMap['artists'];
 
-      for (int i  = 0; i < artistList.length; i++) {
+      for (int i = 0; i < artistList.length; i++) {
         bool foundMatch = false;
-        var tempGenre = artistList[i]['genres'][0];
+
+        var tempGenre = 'Other';
+        if (artistList[i]['genres'].length > 0) {
+          tempGenre = artistList[i]['genres'][0];
+        }
 
         for (String value in regExMap.keys) {
           if (regExMap[value].hasMatch(tempGenre)) {
@@ -194,8 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
 
       return vibes;
-    }
-    else {
+    } else {
       print(jsonDecode(resp.body));
       return {};
     }
@@ -203,9 +195,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<Map<String, dynamic>> getRecentlyPlayed() async {
     Response resp = await get(
-      'https://api.spotify.com/v1/me/player/recently-played',
-      headers: this.getAuthHeaders()
-    );
+        'https://api.spotify.com/v1/me/player/recently-played',
+        headers: this.getAuthHeaders());
 
     Map<String, dynamic> map2 = jsonDecode(resp.body);
     List<dynamic> items = map2['items'];
@@ -236,7 +227,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<bool> postVibes(vibes) async {
-
     Map<String, String> vibeHeaders = {
       'Content-Type': 'application/json',
     };
@@ -272,22 +262,20 @@ class _MyHomePageState extends State<MyHomePage> {
       if (mounted) {
         // Actions like show a info toast.
         _scaffoldKey.currentState.showSnackBar(
-          const SnackBar(content: const Text('Webview Destroyed'))
-        );
+            const SnackBar(content: const Text('Webview Destroyed')));
       }
     });
 
     // Add a listener to on url changed
-    _onUrlChanged = flutterWebViewPlugin.onUrlChanged.listen((String url) async {
-
+    _onUrlChanged =
+        flutterWebViewPlugin.onUrlChanged.listen((String url) async {
       if (mounted) {
-
         int startIndex = url.indexOf('code=');
 
         if (startIndex != -1) {
           code = url.substring(startIndex + 'code='.length);
 
-          if (! await this.getTokens(code)) {
+          if (!await this.getTokens(code)) {
             // TODO: Update status somewhere to let the user know
             return;
           }
@@ -297,10 +285,10 @@ class _MyHomePageState extends State<MyHomePage> {
           // Post the most recent data for now
           Map<String, dynamic> vibes = await this.getRecentlyPlayed();
           this.postVibes(vibes);
-          }
         }
+      }
 
-        setState(() {});
+      setState(() {});
     });
 
     _onProgressChanged =

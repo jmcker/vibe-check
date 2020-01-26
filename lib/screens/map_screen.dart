@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart';
+import 'package:vibe_check/screens/signin_screen.dart';
 
 class MapScreen extends StatefulWidget {
   @override
@@ -13,23 +14,49 @@ class MapScreen extends StatefulWidget {
 
 class _MapState extends State<MapScreen> {
   GoogleMapController mapController;
+  Set<Circle> circles = {}; // CLASS MEMBER, MAP OF Circle
 
-  Set<Circle> circles = Set.from([
-    Circle(
-      circleId: CircleId("current_location"),
-      center: LatLng(40.4285364, -86.9240971),
-      fillColor: Color.fromARGB(128, 51, 153, 153),
-      strokeColor: Color.fromARGB(160, 51, 153, 153),
-      radius: 4000,
-    )
-  ]);
+  // Set<Circle> circles = Set.from([
+  //   Circle(
+  //     circleId: CircleId("current_location"),
+  //     center: LatLng(40.4285364, -86.9240971),
+  //     fillColor: Color.fromARGB(128, 51, 153, 153),
+  //     strokeColor: Color.fromARGB(160, 51, 153, 153),
+  //     radius: 4000,
+  //   )
+  // ]);
+
 
   final LatLng _center = const LatLng(40.4285364, -86.9240971);
   LocationData currentLocation;
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    Timer(Duration(milliseconds: 50), _getBounds);
+    // Timer(Duration(milliseconds: 200), _getBounds);
+  }
+
+  void drawCircles(List<dynamic> vibes){
+      Circle vibeCircle;
+      for(dynamic vibe in vibes){
+        // print(vibe['location_id'].toString());
+        // print(LatLng(vibe['latitude'], vibe['longitude']).toString());
+        print(vibe['genre'].toString());
+        vibeCircle = new Circle(
+          circleId: CircleId(vibe['location_id'].toString()),
+          center:LatLng(vibe['latitude'], vibe['longitude']),
+          fillColor: genreColorMap[vibe['genre'].toString()],
+          radius: 4000
+        );
+        circles.add(vibeCircle);
+      }
+      // Circle c = new Circle(
+      // circleId: CircleId("current_location"),
+      // center: LatLng(40.4285364, -86.9240971),
+      // fillColor: Color.fromARGB(128, 51, 153, 153),
+      // strokeColor: Color.fromARGB(160, 51, 153, 153),
+      // radius: 4000);
+      setState(() {
+      });
   }
 
   _getBounds() async {
@@ -64,6 +91,10 @@ class _MapState extends State<MapScreen> {
     if (resp.statusCode == 200) {
       Map<String, dynamic> map = jsonDecode(resp.body);
 
+      List<dynamic> vibes = map['vibes'];
+
+      drawCircles(vibes);
+
       print("We got the vibes");
       print(map);
     }
@@ -97,7 +128,7 @@ class _MapState extends State<MapScreen> {
                   zoom: 11.0,
                 ),
                 myLocationEnabled: true,
-                circles: circles,
+                circles: Set<Circle>.of(circles),
               ),
               Positioned(
                   left: 0.0,

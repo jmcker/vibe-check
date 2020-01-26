@@ -24,6 +24,12 @@ class _MapState extends State<MapScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+    BitmapDescriptor.fromAssetImage(
+        ImageConfiguration(size: Size(64, 64)), 'Assets/music.png')
+        .then((onValue) {
+      myIcon = onValue;
+    });
+
     Timer(Duration(milliseconds: 200), _getBounds);
   }
 
@@ -46,42 +52,63 @@ class _MapState extends State<MapScreen> {
     return diff;
   }
 
-  void drawCircles(List<dynamic> vibes){
-      circles.clear();
-      markers.clear();
-      Circle vibeCircle;
-      for(dynamic vibe in vibes){
-        print(vibe['genre'].toString());
-        double rad = (vibe['genre_total_count']* 15).toDouble();
-        vibeCircle = new Circle(
-          circleId: CircleId(vibe['location_id'].toString()),
-          center:LatLng(vibe['latitude'], vibe['longitude']),
-          fillColor: genreColorMap[vibe['genre'].toString()],
-          radius: rad,
-          consumeTapEvents : true,
-            );
-            Marker marker = new Marker (
-              anchor: Offset(0.5, 0.5),
-                markerId: MarkerId((vibe['location_id'].toString())),
-                position: LatLng(vibe['latitude'], vibe['longitude']),
-                visible: true,
-                alpha: 0.0,
-                //icon: myIcon,
-                infoWindow: new InfoWindow(
-                  title: "Song: " + vibe["title"],
-                  snippet: "Album: " + vibe["album"],
-                )
-              );
-
-        markers.add(marker);
-        circles.add(vibeCircle);
-
+  void drawCircles(List<dynamic> vibes) {
+    circles.clear();
+    Circle vibeCircle;
+    int min = vibes[0]['genre_total_count'];
+    int max = vibes[0]['genre_total_count'];
+    for (dynamic vibe in vibes) {
+      if (vibe['genre_total_count'] > max) {
+        max = vibe['genre_total_count'];
+      } else if (vibe['genre_total_count'] < min) {
+        min = vibe['genre_total_count'];
       }
+    }
+    for (dynamic vibe in vibes) {
+      double diff = calculateDistance();
+      double normalized;
+      if (max == min) {
+        normalized = 1 - 1 / vibe['genre_total_count'];
+      } else {
+        normalized = (vibe['genre_total_count'] - min) / (max - min);
+      }
+      double rad = ((10 + normalized * 15) * 650 * diff).toDouble();
+
+      vibeCircle = new Circle(
+        circleId: CircleId(vibe['location_id'].toString()),
+        center: LatLng(vibe['latitude'], vibe['longitude']),
+        fillColor: genreColorMap[vibe['genre'].toString()],
+        strokeColor: Color.fromARGB(150, 0, 0, 0),
+        radius: rad,
+      );
+        Marker marker = new Marker (
+        anchor: Offset(0.5, 0.5),
+          markerId: MarkerId((vibe['location_id'].toString())),
+          position: LatLng(vibe['latitude'], vibe['longitude']),
+          visible: true,
+          alpha: 0.0,
+          //icon: myIcon,
+          infoWindow: new InfoWindow(
+            title: "Song: " + vibe["title"],
+            snippet: "Album: " + vibe["album"],
+          )
+      );
+
+      markers.add(marker);
+      circles.add(vibeCircle);
+    }
+    setState(() {});
   }
 
+  void drawMarkers(List<dynamic> vibes){
+
+      setState(() {
 
 
-  
+
+      });
+  }
+
   _getBounds() async {
     bounds = await this.mapController.getVisibleRegion();
 

@@ -240,9 +240,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return tracks;
   }
 
-<<<<<<< HEAD
-  Future<bool> postVibes(vibes) async {
-=======
   Future<bool> postVibes(tracks) async {
 
     print('Posting vibes...');
@@ -261,7 +258,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     vibes = await this.getAndFilterGenres(vibes);
 
->>>>>>> 17f00a055d1435537903894beaf920ec2349cf6c
     Map<String, String> vibeHeaders = {
       'Content-Type': 'application/json',
     };
@@ -319,14 +315,9 @@ class _MyHomePageState extends State<MyHomePage> {
           this.switchToMap();
 
           // Post the most recent data for now
-<<<<<<< HEAD
-          Map<String, dynamic> vibes = await this.getRecentlyPlayed();
-          this.postVibes(vibes);
-=======
           List<dynamic> tracks = await this.getRecentlyPlayed();
           bool success = await this.postVibes(tracks);
 
->>>>>>> 17f00a055d1435537903894beaf920ec2349cf6c
         }
       }
 

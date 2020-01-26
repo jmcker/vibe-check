@@ -32,6 +32,7 @@ class _MapState extends State<MapScreen> {
   }
 
   _getBounds() async {
+    print(this.mapController.toString());
     LatLngBounds bounds = await this.mapController.getVisibleRegion();
     print(bounds.northeast.toString());
     print(bounds.southwest.toString());

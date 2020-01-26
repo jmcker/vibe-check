@@ -24,28 +24,41 @@ final String spotifyUri = Uri.encodeFull(
         '&show_dialog=true');
 
 final Map<String, RegExp> regExMap = {
-  'Classical': RegExp(r'Classical', caseSensitive: false),
-  'Jazz': RegExp(r'Jazz|Blues', caseSensitive: false),
-  'R&B': RegExp(r'R&B', caseSensitive: false),
-  'Country': RegExp(r'Country', caseSensitive: false),
-  'Pop': RegExp(r'Pop|Hip hop|Dance|Latin', caseSensitive: false),
-  'Electronic': RegExp(r'Electronic|House|Electronica', caseSensitive: false),
-  'Rap': RegExp(r'Rap', caseSensitive: false),
-  'Rock': RegExp(r'Rock|Punk', caseSensitive: false),
-  'Metal': RegExp(r'Metal|Punk|Hard', caseSensitive: false)
+  'Classical': RegExp(r'classical|soundtrack', caseSensitive: false),
+  'Jazz': RegExp(r'jazz|blues', caseSensitive: false),
+  'R&B': RegExp(r'r&b', caseSensitive: false),
+  'Country': RegExp(r'country', caseSensitive: false),
+  'Pop': RegExp(r'pop|hip hop|dance|latin', caseSensitive: false),
+  'Electronic': RegExp(r'electronic|house|electronica|bass|.*step|vapor|chillwave|edm|brostep', caseSensitive: false),
+  'Rap': RegExp(r'rap', caseSensitive: false),
+  'Rock': RegExp(r'rock|punk|indie|alternative', caseSensitive: false),
+  'Metal': RegExp(r'metal|hard', caseSensitive: false)
 };
 
+// final Map<String, Color> genreColorMap = {
+//   'Classical': Color.fromARGB(180, 249, 205, 172),
+//   'Jazz': Color.fromARGB(180, 242, 164, 159),
+//   'R&B': Color.fromARGB(180, 236, 124, 146),
+//   'Country': Color.fromARGB(180, 230, 85, 134),
+//   'Pop': Color.fromARGB(180, 188, 67, 139),
+//   'Electronic': Color.fromARGB(180, 147, 50, 145),
+//   'Rap': Color.fromARGB(180, 105, 35, 152),
+//   'Rock': Color.fromARGB(180, 85, 28, 123),
+//   'Metal': Color.fromARGB(180, 65, 21, 94),
+//   'Other' : Color.fromARGB(180, 45, 15, 65),
+// };
+
 final Map<String, Color> genreColorMap = {
-  'Classical': Color.fromARGB(180, 249, 205, 172),
-  'Jazz': Color.fromARGB(180, 242, 164, 159),
-  'R&B': Color.fromARGB(180, 236, 124, 146),
-  'Country': Color.fromARGB(180, 230, 85, 134),
-  'Pop': Color.fromARGB(180, 188, 67, 139),
-  'Electronic': Color.fromARGB(180, 147, 50, 145),
-  'Rap': Color.fromARGB(180, 105, 35, 152),
-  'Rock': Color.fromARGB(180, 85, 28, 123),
-  'Metal': Color.fromARGB(180, 65, 21, 94),
-  'Other' : Color.fromARGB(180, 45, 15, 65),
+  'Classical': Color.fromARGB(180, 205, 133, 63),
+  'Jazz': Color.fromARGB(180, 232, 195, 7),
+  'R&B': Color.fromARGB(180, 65, 12, 255),
+  'Country': Color.fromARGB(180, 88, 255, 0),
+  'Pop': Color.fromARGB(180, 255, 11, 187),
+  'Electronic': Color.fromARGB(180, 12, 232, 224),
+  'Rap': Color.fromARGB(180, 232, 26, 7),
+  'Rock': Color.fromARGB(180, 255, 141, 20),
+  'Metal': Color.fromARGB(180, 140, 140, 140),
+  'Other' : Color.fromARGB(180, 220, 220, 220),
 };
 
 // ignore: prefer_collection_literals
@@ -71,7 +84,6 @@ class SignIn extends StatelessWidget {
       title: 'Flutter WebView Demo',
       theme: ThemeData(
         primarySwatch: Colors.purple,
-        backgroundColor: Colors.purple,
         primaryColor: Colors.purple,
       ),
       routes: {
@@ -88,7 +100,7 @@ class SignIn extends StatelessWidget {
             withLocalStorage: true,
             hidden: true,
             initialChild: Container(
-              color: Colors.purple,
+              color: Colors.white,
               child: const Center(
                 child: Text('Loading...'),
               ),
@@ -193,10 +205,7 @@ class _MyHomePageState extends State<MyHomePage> {
         bool foundMatch = false;
         tracks[i]["original_genre"] = artistList[i]['genres'].join(",");
         for (int j = 0; j < artistList[i]["genres"].length; j++) {
-          var tempGenre = 'Other';
-          if (artistList[i]['genres'].length > 0) {
-            tempGenre = artistList[i]['genres'][0];
-          }
+          var tempGenre = artistList[i]["genres"][j];
           for (String value in regExMap.keys) {
             if (regExMap[value].hasMatch(tempGenre)) {
               tracks[i]['genre'] = value;
@@ -205,8 +214,8 @@ class _MyHomePageState extends State<MyHomePage> {
             }
           }
           if (foundMatch) {
-            break
-;          }
+            break;
+          }
         }
 
         if (foundMatch == false) {
@@ -382,14 +391,29 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Image.asset('Assets/logo.png'),
               // child: TextField(controller: _urlCtrl),
             ),
-            RaisedButton(
+            SizedBox(height: 120),
+            SizedBox(
+              
+              height: 100,
+              width: 300,
+              child:  RaisedButton(
+              
               onPressed: () {
                 Navigator.of(context).pushNamed('/widget');
               },
-              child: const Text('Authorize Spotify'),
+              child: new Text(
+                'Authorize Spotify', 
+                style: new TextStyle(
+                  fontSize: 30.0, 
+                  color: Colors.white),
+                ),
+              
               color: Colors.purple,
               textColor: Colors.white,
+              
             ),
+            )
+           
           ],
         ),
       ),

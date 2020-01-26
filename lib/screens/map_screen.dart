@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'dart:math' as Math;
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -24,7 +22,15 @@ class _MapState extends State<MapScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    // Timer(Duration(milliseconds: 200), _getBounds);
+    Timer(Duration(milliseconds: 200), _getBounds);
+  }
+
+  void _onCameraMoveStarted() {
+    print('_onCameraMoveStarted');
+  }
+
+  void _onCamerMoveIdle() {
+    print('_onCamerMoveIdle');
   }
 
   double calculateDistance() {
@@ -61,13 +67,16 @@ class _MapState extends State<MapScreen> {
       double rad = ((10 + normalized * 15) * 650 * diff).toDouble();
 
       vibeCircle = new Circle(
-          circleId: CircleId(vibe['location_id'].toString()),
-          center: LatLng(vibe['latitude'], vibe['longitude']),
-          fillColor: genreColorMap[vibe['genre'].toString()],
-          radius: rad);
+        circleId: CircleId(vibe['location_id'].toString()),
+        center: LatLng(vibe['latitude'], vibe['longitude']),
+        fillColor: genreColorMap[vibe['genre'].toString()],
+        radius: rad,
+        onTap: () {
+          print('Circle #' + vibe['location_id'] + ' clicked');
+        },
+      );
       circles.add(vibeCircle);
     }
-
     setState(() {});
   }
 
@@ -95,7 +104,7 @@ class _MapState extends State<MapScreen> {
     }
 
     Response resp = await get(
-        'https://vibecheck.tk/api/vibe?lat_min=${lat_min}&lat_max=${lat_max}&lon_min=${lon_min}&lon_max=${lon_max}');
+        'https://vibecheck.tk/api/vibe?lat_min=${lat_min}&lat_max=${lat_max}&lon_min=${lon_min}&lon_max=${lon_max}&divisions=16');
 
     if (resp.statusCode == 200) {
       Map<String, dynamic> map = jsonDecode(resp.body);
@@ -108,33 +117,26 @@ class _MapState extends State<MapScreen> {
     }
   }
 
-  _getLocation() async {}
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
           appBar: AppBar(
             title: Text('Vibe Check'),
-            backgroundColor: Colors.white,
-            actions: <Widget>[
-              RaisedButton(
-                onPressed: _getBounds,
-                color: Colors.white,
-                child: Text(
-                  'Show Vibes 🤙',
-                ),
-              ),
-            ],
+            backgroundColor: Colors.purple[900],
           ),
           body: Stack(
             children: <Widget>[
               GoogleMap(
                 onMapCreated: _onMapCreated,
+                onCameraMoveStarted: _onCameraMoveStarted,
+                onCameraIdle: _onCamerMoveIdle,
                 initialCameraPosition: CameraPosition(
                   target: _center,
                   zoom: 11.0,
                 ),
+                rotateGesturesEnabled: false,
+                compassEnabled: false,
                 myLocationEnabled: true,
                 circles: Set<Circle>.of(circles),
               ),
@@ -144,13 +146,21 @@ class _MapState extends State<MapScreen> {
                   bottom: 0.0,
                   child: Column(
                     children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: FloatingActionButton.extended(
+                          backgroundColor: Colors.purple[900],
+                          onPressed: _getBounds,
+                          label: Text('Show Vibes 🤙'),
+                        ),
+                      ),
                       Container(
                         height: 40.0,
                         width: 400.0,
                         color: Colors.white,
                         child: Image.asset('Assets/legend.PNG'),
                         // Text("This is a sample txtd to understand FittedBox widget"),
-                      )
+                      ),
                     ],
                   )),
             ],

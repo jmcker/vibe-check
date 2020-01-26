@@ -9,8 +9,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="vibe_check"
-        android:icon="@mipmap/ic_launcher">
+        android:label="Vibe Check"
+        android:icon="@mipmap/launcher_icon">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyD3O6hn_Sl5oEgFuUD0nbeliuEAGJ-iWUA" />

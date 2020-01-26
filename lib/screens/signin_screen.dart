@@ -29,9 +29,9 @@ final Map<String, RegExp> regExMap = {
   'R&B': RegExp(r'r&b', caseSensitive: false),
   'Country': RegExp(r'country', caseSensitive: false),
   'Pop': RegExp(r'pop|hip hop|dance|latin', caseSensitive: false),
-  'Electronic': RegExp(r'electronic|house|electronica', caseSensitive: false),
+  'Electronic': RegExp(r'electronic|house|electronica|bass|.*step|vapor|chillwave|edm|brostep', caseSensitive: false),
   'Rap': RegExp(r'rap', caseSensitive: false),
-  'Rock': RegExp(r'rock|punk', caseSensitive: false),
+  'Rock': RegExp(r'rock|punk|indie|alternative', caseSensitive: false),
   'Metal': RegExp(r'metal|punk|hard', caseSensitive: false)
 };
 

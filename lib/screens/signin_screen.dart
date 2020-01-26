@@ -22,15 +22,28 @@ final String spotifyUri = Uri.encodeFull(
 );
 
 final Map<String, RegExp> regExMap= {
-"Classical" : RegExp(r"Classical", caseSensitive: false),
- "Jazz" : RegExp(r"Jazz|Blues", caseSensitive: false),
- "R&B" : RegExp(r"R&B", caseSensitive: false),
- "Country" : RegExp(r"Country", caseSensitive: false),
- "Pop" : RegExp(r"Pop|Hip hop", caseSensitive: false),
- "Electronic" : RegExp(r"Electronic|House|Electronica", caseSensitive: false),
- "Rap" : RegExp(r"Rap", caseSensitive: false),
- "Rock" : RegExp(r"Rock|Punk", caseSensitive: false),
- "Metal" : RegExp(r"Metal|Punk", caseSensitive: false),
+  'Classical' : RegExp(r'Classical', caseSensitive: false),
+  'Jazz' : RegExp(r'Jazz|Blues', caseSensitive: false),
+  'R&B' : RegExp(r'R&B', caseSensitive: false),
+  'Country' : RegExp(r'Country', caseSensitive: false),
+  'Pop' : RegExp(r'Pop|Hip hop', caseSensitive: false),
+  'Electronic' : RegExp(r'Electronic|House|Electronica', caseSensitive: false),
+  'Rap' : RegExp(r'Rap', caseSensitive: false),
+  'Rock' : RegExp(r'Rock|Punk', caseSensitive: false),
+  'Metal' : RegExp(r'Metal|Punk', caseSensitive: false)
+};
+
+final Map<String, Color> genreColorMap = {
+  'Classical': Colors.brown,
+  'Jazz': Colors.yellow,
+  'R&B': Colors.blue,
+  'Country': Colors.green,
+  'Pop': Colors.pink,
+  'Electronic': Colors.orange,
+  'Rap': Colors.red,
+  'Rock': Colors.purple,
+  'Metal': Colors.deepPurple,
+  'Other': Colors.white
 };
 
 // ignore: prefer_collection_literals
@@ -163,18 +176,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
       for (int i  = 0; i < artistList.length; i++) {
         bool foundMatch = false;
-        var tempGenre = artistList[i]["genres"][0];
+        var tempGenre = artistList[i]['genres'][0];
 
         for (String value in regExMap.keys) {
           if (regExMap[value].hasMatch(tempGenre)) {
-            tracks[i]["genre"] = value;
+            tracks[i]['genre'] = value;
             foundMatch = true;
             break;
           }
         }
 
         if (foundMatch == false) {
-          tracks[i]["genre"] = "Other";
+          tracks[i]['genre'] = 'Other';
         }
 
         print(tracks[i]['genre']);

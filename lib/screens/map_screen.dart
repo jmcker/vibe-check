@@ -73,20 +73,38 @@ class _MapState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: Text('Vibe Check'),
-          backgroundColor: Colors.purple[900],
-        ),
-        body: GoogleMap(
-          onMapCreated: _onMapCreated,
-          initialCameraPosition: CameraPosition(
-            target: _center,
-            zoom: 11.0,
+          appBar: AppBar(
+            title: Text('Vibe Check'),
+            backgroundColor: Colors.purple[900],
           ),
-          myLocationEnabled: true,
-          circles: circles,
-        ),
-      ),
+          body: Stack(
+            children: <Widget>[
+              GoogleMap(
+                onMapCreated: _onMapCreated,
+                initialCameraPosition: CameraPosition(
+                  target: _center,
+                  zoom: 11.0,
+                ),
+                myLocationEnabled: true,
+                circles: circles,
+              ),
+              Positioned(
+                  left: 0.0,
+                  right: 0.0,
+                  bottom: 0.0,
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        height: 40.0,
+                        width: 400.0,
+                        color: Colors.white,
+                        child: Image.asset('Assets/legend.PNG'),
+                        // Text("This is a sample txtd to understand FittedBox widget"),
+                      )
+                    ],
+                  )),
+            ],
+          )),
     );
   }
 }

@@ -88,7 +88,7 @@ class _MapState extends State<MapScreen> {
     }
 
     Response resp = await get(
-        'https://vibecheck.tk/api/vibe?lat_min=${lat_min}&lat_max=${lat_max}&lon_min=${lon_min}&lon_max=${lon_max}');
+        'https://vibecheck.tk/api/vibe?lat_min=${lat_min}&lat_max=${lat_max}&lon_min=${lon_min}&lon_max=${lon_max}&divisions=16');
 
     if (resp.statusCode == 200) {
       Map<String, dynamic> map = jsonDecode(resp.body);

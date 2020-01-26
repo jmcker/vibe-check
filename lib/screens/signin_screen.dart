@@ -4,27 +4,22 @@ import '../main.dart';
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:http/http.dart';
-import 'package:spotify/spotify_io.dart';
 
 const kAndroidUserAgent =
     'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Mobile Safari/537.36';
 
-String spotify = 'https://accounts.spotify.com/authorize' +
-  '?response_type=code' +
-  '&client_id=' + "c451eab95a624bfbb8cf67a84b11b985" +
-  ('&scope=user-read-recently-played') +
-  '&redirect_uri=' + "https://vibecheck.tk/auth" +
-  "&show_dialog=true";
-
-
-String spotify_uri = Uri.encodeFull(spotify);
-
-String selectedUrl = spotify_uri;
+final String spotifyUri = Uri.encodeFull(
+    'https://accounts.spotify.com/authorize' +
+    '?response_type=code' +
+    '&client_id=c451eab95a624bfbb8cf67a84b11b985' +
+    '&scope=user-read-recently-played' +
+    '&redirect_uri=https://vibecheck.tk/auth' +
+    '&show_dialog=true'
+);
 
 // ignore: prefer_collection_literals
 final Set<JavascriptChannel> jsChannels = [
@@ -36,11 +31,10 @@ final Set<JavascriptChannel> jsChannels = [
 ].toSet();
 
 String code = 'Blank';
-String access_token = "";
-String refresh_token = "";
+String access_token = '';
+String refresh_token = '';
 
 class SignIn extends StatelessWidget {
-
   final flutterWebViewPlugin = FlutterWebviewPlugin();
 
   @override
@@ -51,14 +45,14 @@ class SignIn extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       routes: {
-        '/': (_) => const MyHomePage(title: 'Flutter WebView Demo'),
+        '/': (_) => const MyHomePage(title: 'Vibe Check Spotify Sign-in'),
         '/widget': (_) {
           return WebviewScaffold(
-            url: selectedUrl,
+            url: spotifyUri,
             javascriptChannels: jsChannels,
             mediaPlaybackRequiresUserGesture: false,
             appBar: AppBar(
-              title: const Text('Widget WebView'),
+              title: const Text('Vibe Check Spotify Sign-in'),
             ),
             withZoom: true,
             withLocalStorage: true,
@@ -66,7 +60,7 @@ class SignIn extends StatelessWidget {
             initialChild: Container(
               color: Colors.white,
               child: const Center(
-                child: Text('Waiting.....'),
+                child: Text('Loading.....'),
               ),
             ),
           );
@@ -91,24 +85,149 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // On destroy stream
   StreamSubscription _onDestroy;
-
-  // On urlChanged stream
   StreamSubscription<String> _onUrlChanged;
-
-  // On urlChanged stream
   StreamSubscription<WebViewStateChanged> _onStateChanged;
-
   StreamSubscription<WebViewHttpError> _onHttpError;
-
   StreamSubscription<double> _onProgressChanged;
-
   StreamSubscription<double> _onScrollYChanged;
-
   StreamSubscription<double> _onScrollXChanged;
 
-  final _urlCtrl = TextEditingController(text: selectedUrl);
-
+  final _urlCtrl = TextEditingController(text: spotifyUri);
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Map<String, String> getAuthHeaders() {
+    return {
+      'Authorization': 'Bearer ' + access_token,
+    };
+  }
+
+  Future<bool> getTokens(spotifyCode) async {
+
+    Response resp = await get('https://vibecheck.tk/api/auth?code=' + code);
+
+    if (resp.statusCode == 200) {
+
+      Map<String, dynamic> map = jsonDecode(resp.body);
+
+      access_token = map['access_token'];
+      refresh_token = map['refresh_token'];
+
+      // TODO: Store in secure storage
+
+      print('Got Spotify access token.');
+
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>> getAndFillGenres(vibes) async {
+
+    List<dynamic> tracks = vibes['tracks'];
+
+    // Now put all of the artist id's in an array to send to get genre
+    String artistCommaString = '';
+    for (var i = 0; i < tracks.length - 1; i++) {
+      artistCommaString += tracks[i]['artist_id'] + ',';
+    }
+    artistCommaString += tracks[tracks.length - 1]['artist_id'];
+
+    String requestUri = Uri.encodeFull(
+      'https://api.spotify.com/v1/artists?ids=' +
+      artistCommaString
+    );
+
+    Response resp = await get(
+        requestUri,
+        headers: this.getAuthHeaders()
+    );
+
+    if (resp.statusCode == 200) {
+      Map<String, dynamic> artistMap = jsonDecode(resp.body);
+      List<dynamic> artistList = artistMap['artists'];
+
+      for (int i = 0; i < artistList.length; i++) {
+
+        // Make sure we actually got a genre
+        // Pick the first genre in the list for now
+        if (artistList[i]['genres'].length == 0) {
+          tracks[i]['genre'] = 'Other';
+        } else {
+          tracks[i]['genre'] = artistList[i]['genres'][0];
+        }
+
+        print(tracks[i]['genre']);
+      }
+
+      return vibes;
+    }
+    else {
+      print(jsonDecode(resp.body));
+      return {};
+    }
+  }
+
+  Future<Map<String, dynamic>> getRecentlyPlayed() async {
+    Response resp = await get(
+      'https://api.spotify.com/v1/me/player/recently-played',
+      headers: this.getAuthHeaders()
+    );
+
+    Map<String, dynamic> map2 = jsonDecode(resp.body);
+    List<dynamic> items = map2['items'];
+    Map<String, dynamic> vibes = new Map();
+
+    // TODO: Get the real lat/lon
+    vibes['latitude'] = '40.4285323';
+    vibes['longitude'] = '-86.9240971';
+
+    List<dynamic> tracks = new List();
+
+    //Need to change this to size of vibes were getting
+    for (var i = 0; i < items.length; i++) {
+      Map<String, dynamic> track = new Map();
+      track['artist'] = items[i]['track']['artists'][0]['name'];
+      track['album'] = items[i]['track']['album']['name'];
+      track['artist_id'] = items[i]['track']['artists'][0]['id'];
+      track['popularity'] = items[i]['track']['popularity'];
+      track['track_id'] = items[i]['track']['id'];
+      track['title'] = items[i]['track']['name'];
+      tracks.add(track);
+    }
+
+    vibes['tracks'] = tracks;
+
+    vibes = await this.getAndFillGenres(vibes);
+    return vibes;
+  }
+
+  Future<bool> postVibes(vibes) async {
+
+    Map<String, String> vibeHeaders = {
+      'Content-Type': 'application/json',
+    };
+    Response vibePost = await post('https://vibecheck.tk/api/vibe',
+        headers: vibeHeaders, body: json.encode(vibes));
+
+    if (vibePost.statusCode == 201) {
+      print('Vibes have been posted');
+      return true;
+    } else {
+      print(vibePost.body + 'did not work.');
+      return false;
+    }
+  }
+
+  void switchToMap() {
+    flutterWebViewPlugin.close();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => MapScreen()),
+    );
+  }
 
   @override
   void initState() {
@@ -116,127 +235,60 @@ class _MyHomePageState extends State<MyHomePage> {
 
     flutterWebViewPlugin.close();
 
-    _urlCtrl.addListener(() {
-      selectedUrl = _urlCtrl.text;
-    });
-
     // Add a listener to on destroy WebView, so you can make came actions.
     _onDestroy = flutterWebViewPlugin.onDestroy.listen((_) {
       if (mounted) {
         // Actions like show a info toast.
         _scaffoldKey.currentState.showSnackBar(
-            const SnackBar(content: const Text('Webview Destroyed')));
+          const SnackBar(content: const Text('Webview Destroyed'))
+        );
       }
     });
 
     // Add a listener to on url changed
     _onUrlChanged = flutterWebViewPlugin.onUrlChanged.listen((String url) async {
+
       if (mounted) {
-          int startIndex = url.indexOf('code=');
-          if (startIndex != -1) {
-            code = url.substring(startIndex+5);
-            Response res = await get("https://vibecheck.tk/api/auth?code=" + code);
-            if (res.statusCode == 200) {
-              Map<String, dynamic> map = jsonDecode(res.body);
-              access_token = map["access_token"];
-              print(access_token);
-              Map<String, String> requestHeaders = {
-                'Authorization': 'Bearer ' + access_token,
-              };
-              Response res2 = await get("https://api.spotify.com/v1/me/player/recently-played", headers:requestHeaders);
-              Map<String, dynamic> map2 = jsonDecode(res2.body);
 
-              List <dynamic> items = map2["items"];
+        int startIndex = url.indexOf('code=');
 
-              Map<String, dynamic> vibes = new Map();
-              vibes["latitude"] = "40.4285323";
-              vibes["longitude"] = "-86.9240971";
+        if (startIndex != -1) {
+          code = url.substring(startIndex + 'code='.length);
 
-              List<dynamic> tracks = new List();
-
-              //Need to change this to size of vibes were getting
-              for (var i = 0; i < items.length; i++) {
-                Map<String, dynamic> track = new Map();
-                track["artist"] = items[i]["track"]["artists"][0]["name"];
-                track["album"] = items[i]["track"]["album"]["name"];
-                track["artist_id"] = items[i]["track"]["artists"][0]["id"];
-                track["popularity"] = items[i]["track"]["popularity"];
-                track["track_id"] = items[i]["track"]["id"];
-                track["title"] = items[i]["track"]["name"];
-                tracks.add(track);
-              }
-
-              //Now put all of the artist id's in an array to send to get genre
-              String artistCommaString = "";
-              for (var i = 0; i < items.length - 1; i++) {
-                artistCommaString += tracks[i]["artist_id"] + ',';
-              }
-
-              artistCommaString += tracks[items.length-1]["artist_id"];
-
-              Response artistResponse = await get(Uri.encodeFull("https://api.spotify.com/v1/artists?ids=" + artistCommaString), headers:requestHeaders);
-              if (res.statusCode == 200) {
-                Map<String, dynamic> artistMap = jsonDecode(artistResponse.body);
-                List <dynamic> artistList = artistMap["artists"];
-
-                for (int i  = 0; i < artistList.length; i++) {
-                  if (artistList[i]["genres"].length == 0) {
-                    tracks[i]["genre"] = "Other";
-                  }
-                  else {
-                    tracks[i]["genre"] = artistList[i]["genres"][0];
-                  }
-                  print(tracks[i]["genre"]);
-                }
-
-                vibes["tracks"] = tracks;
-                Map<String, String> vibeHeaders = {
-                  'Content-Type': 'application/json',
-                };
-                Response vibePost = await post("https://vibecheck.tk/api/vibe", headers:vibeHeaders ,body:json.encode(vibes));
-                if (vibePost.statusCode == 201) {
-                  print("Vibes have been posted");
-                  flutterWebViewPlugin.close();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MapScreen()),
-                    );
-                }
-                else {
-                  print(vibePost.body + "did not work");
-                }
-              }
-              else {
-                print(jsonDecode(artistResponse.body));
-              }
-            }
+          if (! await this.getTokens(code)) {
+            // TODO: Update status somewhere to let the user know
+            return;
           }
-      }
-      setState((){
-      });
+
+          this.switchToMap();
+
+          // Post the most recent data for now
+          Map<String, dynamic> vibes = await this.getRecentlyPlayed();
+          this.postVibes(vibes);
+          }
+        }
+
+        setState(() {});
     });
 
     _onProgressChanged =
         flutterWebViewPlugin.onProgressChanged.listen((double progress) {
       if (mounted) {
-        setState(() {
-        });
+        setState(() {});
       }
     });
 
     _onStateChanged =
         flutterWebViewPlugin.onStateChanged.listen((WebViewStateChanged state) {
       if (mounted) {
-        setState(() {
-        });
+        setState(() {});
       }
     });
 
     _onHttpError =
         flutterWebViewPlugin.onHttpError.listen((WebViewHttpError error) {
       if (mounted) {
-        setState(() {
-        });
+        setState(() {});
       }
     });
   }
@@ -252,7 +304,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     flutterWebViewPlugin.dispose();
     super.dispose();
-
   }
 
   @override
@@ -277,7 +328,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text('Open widget webview'),
             ),
             Text(
-              '$code',
+              code,
               style: Theme.of(context).textTheme.display1,
             ),
           ],

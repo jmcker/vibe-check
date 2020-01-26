@@ -24,15 +24,15 @@ final String spotifyUri = Uri.encodeFull(
         '&show_dialog=true');
 
 final Map<String, RegExp> regExMap = {
-  'Classical': RegExp(r'Classical', caseSensitive: false),
-  'Jazz': RegExp(r'Jazz|Blues', caseSensitive: false),
-  'R&B': RegExp(r'R&B', caseSensitive: false),
-  'Country': RegExp(r'Country', caseSensitive: false),
-  'Pop': RegExp(r'Pop|Hip hop|Dance|Latin', caseSensitive: false),
-  'Electronic': RegExp(r'Electronic|House|Electronica', caseSensitive: false),
-  'Rap': RegExp(r'Rap', caseSensitive: false),
-  'Rock': RegExp(r'Rock|Punk', caseSensitive: false),
-  'Metal': RegExp(r'Metal|Punk|Hard', caseSensitive: false)
+  'Classical': RegExp(r'classical', caseSensitive: false),
+  'Jazz': RegExp(r'jazz|blues', caseSensitive: false),
+  'R&B': RegExp(r'r&b', caseSensitive: false),
+  'Country': RegExp(r'country', caseSensitive: false),
+  'Pop': RegExp(r'pop|hip hop|dance|latin', caseSensitive: false),
+  'Electronic': RegExp(r'electronic|house|electronica', caseSensitive: false),
+  'Rap': RegExp(r'rap', caseSensitive: false),
+  'Rock': RegExp(r'rock|punk', caseSensitive: false),
+  'Metal': RegExp(r'metal|punk|hard', caseSensitive: false)
 };
 
 final Map<String, Color> genreColorMap = {
@@ -193,10 +193,7 @@ class _MyHomePageState extends State<MyHomePage> {
         bool foundMatch = false;
         tracks[i]["original_genre"] = artistList[i]['genres'].join(",");
         for (int j = 0; j < artistList[i]["genres"].length; j++) {
-          var tempGenre = 'Other';
-          if (artistList[i]['genres'].length > 0) {
-            tempGenre = artistList[i]['genres'][0];
-          }
+          var tempGenre = artistList[i]["genres"][j];
           for (String value in regExMap.keys) {
             if (regExMap[value].hasMatch(tempGenre)) {
               tracks[i]['genre'] = value;
@@ -205,8 +202,8 @@ class _MyHomePageState extends State<MyHomePage> {
             }
           }
           if (foundMatch) {
-            break
-;          }
+            break;
+          }
         }
 
         if (foundMatch == false) {

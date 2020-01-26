@@ -14,8 +14,9 @@ class MapScreen extends StatefulWidget {
 
 class _MapState extends State<MapScreen> {
   GoogleMapController mapController;
+  BitmapDescriptor myIcon;
   Set<Circle> circles = {}; // CLASS MEMBER, MAP OF Circle
-
+  Set<Marker> markers = {};
   // Set<Circle> circles = Set.from([
   //   Circle(
   //     circleId: CircleId("current_location"),
@@ -31,6 +32,12 @@ class _MapState extends State<MapScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+    BitmapDescriptor.fromAssetImage(
+        ImageConfiguration(size: Size(64, 64)), 'Assets/music.png')
+        .then((onValue) {
+      myIcon = onValue;
+    });
+
     Timer(Duration(milliseconds: 200), _getBounds);
   }
 
@@ -44,6 +51,7 @@ class _MapState extends State<MapScreen> {
 
   void drawCircles(List<dynamic> vibes){
       circles.clear();
+      markers.clear();
       Circle vibeCircle;
       for(dynamic vibe in vibes){
         // print(vibe['location_id'].toString());
@@ -55,10 +63,26 @@ class _MapState extends State<MapScreen> {
           center:LatLng(vibe['latitude'], vibe['longitude']),
           fillColor: genreColorMap[vibe['genre'].toString()],
           radius: rad,
-          onTap: () {
-            print('Circle #' + vibe['location_id'] + ' clicked');
-          },
-        );
+          consumeTapEvents : true,
+          // onTap: () {
+            );
+
+
+            Marker marker = new Marker (
+              anchor: Offset(0.5, 0.5),
+                markerId: MarkerId((vibe['location_id'].toString())),
+                position: LatLng(vibe['latitude'], vibe['longitude']),
+                visible: true,
+                alpha: 0.0,
+                //icon: myIcon,
+                infoWindow: new InfoWindow(
+                  title: "Song: " + vibe["title"],
+                  snippet: "Album: " + vibe["album"],
+                )
+              );
+            
+          // },
+        markers.add(marker);
         circles.add(vibeCircle);
       }
       // Circle c = new Circle(
@@ -68,6 +92,15 @@ class _MapState extends State<MapScreen> {
       // strokeColor: Color.fromARGB(160, 51, 153, 153),
       // radius: 4000);
       setState(() {
+      });
+  }
+
+  void drawMarkers(List<dynamic> vibes){
+
+      setState(() {
+
+
+
       });
   }
 
@@ -134,6 +167,7 @@ class _MapState extends State<MapScreen> {
               compassEnabled: false,
               myLocationEnabled: true,
               circles: Set<Circle>.of(circles),
+              markers: Set<Marker>.of(markers),
             ),
             Positioned(
               left: 0.0,

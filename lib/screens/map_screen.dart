@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class _MapState extends State<MapScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    _getBounds();
+    Timer(Duration(milliseconds: 50), _getBounds);
   }
 
   _getBounds() async {
@@ -77,6 +78,15 @@ class _MapState extends State<MapScreen> {
           appBar: AppBar(
             title: Text('Vibe Check'),
             backgroundColor: Colors.purple[900],
+            actions: <Widget>[
+              RaisedButton(
+                onPressed: _getBounds,
+                color: Colors.purple,
+                child: Text(
+                  'Show Vibes 🤙',
+                ),
+              ),
+            ],
           ),
           body: Stack(
             children: <Widget>[

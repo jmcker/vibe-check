@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class _MapState extends State<MapScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    // Timer(Duration(milliseconds: 200), _getBounds);
+    Timer(Duration(milliseconds: 200), _getBounds);
   }
 
   void _onCameraMoveStarted() {

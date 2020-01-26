@@ -10,24 +10,36 @@ class MapScreen extends StatefulWidget {
 class _MapState extends State<MapScreen> {
   GoogleMapController mapController;
 
-  final LatLng _center = const LatLng(40.4285364,-86.9240971);
+  Set<Circle> circles = Set.from([
+    Circle(
+      circleId: CircleId("current_location"),
+      center: LatLng(40.4285364, -86.9240971),
+      fillColor: Color.fromARGB(128, 51, 153, 153),
+      strokeColor: Color.fromARGB(160, 51, 153, 153),
+      radius: 4000,
+    )
+  ]);
+
+  final LatLng _center = const LatLng(40.4285364, -86.9240971);
   LocationData currentLocation;
 
   void _onMapCreated(GoogleMapController controller) {
-
     mapController = controller;
     _getLocation();
   }
 
   _getLocation() async {
-
     var location = new Location();
     try {
       currentLocation = await location.getLocation();
 
       print("locationLatitude: ${currentLocation.latitude.toString()}");
       print("locationLongitude: ${currentLocation.longitude.toString()}");
-
+      LatLngBounds bounds = await this.mapController.getVisibleRegion();
+      print('#################################');
+      print(bounds.northeast.toString());
+      print(bounds.southwest.toString());
+      print('#################################');
       setState(
           () {}); //rebuild the widget after getting the current location of the user
     } on Exception {
@@ -50,6 +62,7 @@ class _MapState extends State<MapScreen> {
             zoom: 11.0,
           ),
           myLocationEnabled: true,
+          circles: circles,
         ),
       ),
     );

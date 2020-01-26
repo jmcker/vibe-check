@@ -77,11 +77,11 @@ class _MapState extends State<MapScreen> {
       home: Scaffold(
           appBar: AppBar(
             title: Text('Vibe Check'),
-            backgroundColor: Colors.purple[900],
+            backgroundColor: Colors.white,
             actions: <Widget>[
               RaisedButton(
                 onPressed: _getBounds,
-                color: Colors.purple,
+                color: Colors.white,
                 child: Text(
                   'Show Vibes 🤙',
                 ),

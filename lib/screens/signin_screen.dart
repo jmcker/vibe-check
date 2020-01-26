@@ -28,11 +28,11 @@ final Map<String, RegExp> regExMap = {
   'Jazz': RegExp(r'Jazz|Blues', caseSensitive: false),
   'R&B': RegExp(r'R&B', caseSensitive: false),
   'Country': RegExp(r'Country', caseSensitive: false),
-  'Pop': RegExp(r'Pop|Hip hop', caseSensitive: false),
+  'Pop': RegExp(r'Pop|Hip hop|Dance|Latin', caseSensitive: false),
   'Electronic': RegExp(r'Electronic|House|Electronica', caseSensitive: false),
   'Rap': RegExp(r'Rap', caseSensitive: false),
   'Rock': RegExp(r'Rock|Punk', caseSensitive: false),
-  'Metal': RegExp(r'Metal|Punk', caseSensitive: false)
+  'Metal': RegExp(r'Metal|Punk|Hard', caseSensitive: false)
 };
 
 final Map<String, Color> genreColorMap = {
@@ -67,9 +67,12 @@ class SignIn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      color: Colors.purple,
       title: 'Flutter WebView Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.purple,
+        backgroundColor: Colors.purple,
+        primaryColor: Colors.purple,
       ),
       routes: {
         '/': (_) => const MyHomePage(title: 'Vibe Check Spotify Sign-in'),
@@ -85,7 +88,7 @@ class SignIn extends StatelessWidget {
             withLocalStorage: true,
             hidden: true,
             initialChild: Container(
-              color: Colors.white,
+              color: Colors.purple,
               child: const Center(
                 child: Text('Loading...'),
               ),
@@ -188,24 +191,28 @@ class _MyHomePageState extends State<MyHomePage> {
 
       for (int i = 0; i < artistList.length; i++) {
         bool foundMatch = false;
-
-        var tempGenre = 'Other';
-        if (artistList[i]['genres'].length > 0) {
-          tempGenre = artistList[i]['genres'][0];
-        }
-
-        for (String value in regExMap.keys) {
-          if (regExMap[value].hasMatch(tempGenre)) {
-            tracks[i]['genre'] = value;
-            foundMatch = true;
-            break;
+        tracks[i]["original_genre"] = artistList[i]['genres'].join(",");
+        for (int j = 0; j < artistList[i]["genres"].length; j++) {
+          var tempGenre = 'Other';
+          if (artistList[i]['genres'].length > 0) {
+            tempGenre = artistList[i]['genres'][0];
           }
+          for (String value in regExMap.keys) {
+            if (regExMap[value].hasMatch(tempGenre)) {
+              tracks[i]['genre'] = value;
+              foundMatch = true;
+              break;
+            }
+          }
+          if (foundMatch) {
+            break
+;          }
         }
 
         if (foundMatch == false) {
           tracks[i]['genre'] = 'Other';
         }
-
+        print(tracks[i]['original_genre']);
         print(tracks[i]['genre']);
       }
 
@@ -364,25 +371,24 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text('Plugin example app'),
+        title: const Text(''),
       ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(24.0),
-              child: TextField(controller: _urlCtrl),
+              //padding: const EdgeInsets.all(24.0),
+              child: Image.asset('Assets/logo.png'),
+              // child: TextField(controller: _urlCtrl),
             ),
             RaisedButton(
               onPressed: () {
                 Navigator.of(context).pushNamed('/widget');
               },
-              child: const Text('Open widget webview'),
-            ),
-            Text(
-              code,
-              style: Theme.of(context).textTheme.display1,
+              child: const Text('Authorize Spotify'),
+              color: Colors.purple,
+              textColor: Colors.white,
             ),
           ],
         ),

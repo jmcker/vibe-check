@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'map_screen.dart';
 import '../main.dart';
@@ -8,6 +10,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:http/http.dart';
+import 'package:location/location.dart';
 
 const kAndroidUserAgent =
     'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Mobile Safari/537.36';
@@ -85,7 +88,7 @@ class SignIn extends StatelessWidget {
             initialChild: Container(
               color: Colors.white,
               child: const Center(
-                child: Text('Loading.....'),
+                child: Text('Loading...'),
               ),
             ),
           );
@@ -148,7 +151,26 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<Map<String, dynamic>> getAndFillGenres(vibes) async {
+  Future<Map<String, double>> getLocation() async {
+    var location = new Location();
+    var currentLocation;
+
+    try {
+      currentLocation = await location.getLocation();
+    } on Exception {
+      return {'error': 0.0};
+    }
+
+    print("locationLatitude: ${currentLocation.latitude.toString()}");
+    print("locationLongitude: ${currentLocation.longitude.toString()}");
+
+    return {
+      'latitude': currentLocation.latitude,
+      'longitude': currentLocation.longitude
+    };
+  }
+
+  Future<Map<String, dynamic>> getAndFilterGenres(vibes) async {
 
     List<dynamic> tracks = vibes['tracks'];
 
@@ -201,7 +223,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<Map<String, dynamic>> getRecentlyPlayed() async {
+  Future<List<dynamic>> getRecentlyPlayed() async {
     Response resp = await get(
       'https://api.spotify.com/v1/me/player/recently-played',
       headers: this.getAuthHeaders()
@@ -209,12 +231,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     Map<String, dynamic> map2 = jsonDecode(resp.body);
     List<dynamic> items = map2['items'];
-    Map<String, dynamic> vibes = new Map();
-
-    // TODO: Get the real lat/lon
-    vibes['latitude'] = '40.4285323';
-    vibes['longitude'] = '-86.9240971';
-
     List<dynamic> tracks = new List();
 
     //Need to change this to size of vibes were getting
@@ -229,13 +245,26 @@ class _MyHomePageState extends State<MyHomePage> {
       tracks.add(track);
     }
 
-    vibes['tracks'] = tracks;
-
-    vibes = await this.getAndFillGenres(vibes);
-    return vibes;
+    return tracks;
   }
 
-  Future<bool> postVibes(vibes) async {
+  Future<bool> postVibes(tracks) async {
+
+    print('Posting vibes...');
+
+    Map<String, dynamic> vibes = new Map();
+    Map<String, double> locData = await this.getLocation();
+
+    if (locData.containsKey('error')) {
+      print('Could not post vibes. getLocation failed.');
+      return false;
+    }
+
+    vibes['latitude'] = locData['latitude'];
+    vibes['longitude'] = locData['longitude'];
+    vibes['tracks'] = tracks;
+
+    vibes = await this.getAndFilterGenres(vibes);
 
     Map<String, String> vibeHeaders = {
       'Content-Type': 'application/json',
@@ -247,7 +276,8 @@ class _MyHomePageState extends State<MyHomePage> {
       print('Vibes have been posted');
       return true;
     } else {
-      print(vibePost.body + 'did not work.');
+      print(vibePost.body);
+      print('Vibes did not work.');
       return false;
     }
   }
@@ -295,12 +325,13 @@ class _MyHomePageState extends State<MyHomePage> {
           this.switchToMap();
 
           // Post the most recent data for now
-          Map<String, dynamic> vibes = await this.getRecentlyPlayed();
-          this.postVibes(vibes);
-          }
-        }
+          List<dynamic> tracks = await this.getRecentlyPlayed();
+          bool success = await this.postVibes(tracks);
 
-        setState(() {});
+        }
+      }
+
+      setState(() {});
     });
 
     _onProgressChanged =

@@ -37,16 +37,16 @@ final Map<String, RegExp> regExMap= {
 };
 
 final Map<String, Color> genreColorMap = {
-  'Classical': Colors.brown,
-  'Jazz': Colors.yellow,
-  'R&B': Colors.blue,
-  'Country': Colors.green,
-  'Pop': Colors.pink,
-  'Electronic': Colors.orange,
-  'Rap': Colors.red,
-  'Rock': Colors.purple,
-  'Metal': Colors.deepPurple,
-  'Other': Colors.white
+  'Classical': Color.fromARGB(180, 249, 205, 172),
+  'Jazz': Color.fromARGB(180, 242, 164, 159),
+  'R&B': Color.fromARGB(180, 236, 124, 146),
+  'Country': Color.fromARGB(180, 230, 85, 134),
+  'Pop': Color.fromARGB(180, 188, 67, 139),
+  'Electronic': Color.fromARGB(180, 147, 50, 145),
+  'Rap': Color.fromARGB(180, 105, 35, 152),
+  'Rock': Color.fromARGB(180, 85, 28, 123),
+  'Metal': Color.fromARGB(180, 65, 21, 94),
+  'Other' : Color.fromARGB(180, 45, 15, 65),
 };
 
 // ignore: prefer_collection_literals

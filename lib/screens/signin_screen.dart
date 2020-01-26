@@ -253,7 +253,7 @@ class _MyHomePageState extends State<MyHomePage> {
     print('Posting vibes...');
 
     Map<String, dynamic> vibes = new Map();
-    Map<String, String> locData = await this.getLocation();
+    Map<String, double> locData = await this.getLocation();
 
     if (locData.containsKey('error')) {
       print('Could not post vibes. getLocation failed.');
@@ -277,7 +277,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return true;
     } else {
       print(vibePost.body);
-      print('Vibes did not work.')
+      print('Vibes did not work.');
       return false;
     }
   }

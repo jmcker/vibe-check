@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'dart:math' as Math;
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -15,17 +17,7 @@ class MapScreen extends StatefulWidget {
 class _MapState extends State<MapScreen> {
   GoogleMapController mapController;
   Set<Circle> circles = {}; // CLASS MEMBER, MAP OF Circle
-
-  // Set<Circle> circles = Set.from([
-  //   Circle(
-  //     circleId: CircleId("current_location"),
-  //     center: LatLng(40.4285364, -86.9240971),
-  //     fillColor: Color.fromARGB(128, 51, 153, 153),
-  //     strokeColor: Color.fromARGB(160, 51, 153, 153),
-  //     radius: 4000,
-  //   )
-  // ]);
-
+  LatLngBounds bounds = null;
 
   final LatLng _center = const LatLng(40.4285364, -86.9240971);
   LocationData currentLocation;
@@ -35,37 +27,52 @@ class _MapState extends State<MapScreen> {
     // Timer(Duration(milliseconds: 200), _getBounds);
   }
 
-  void drawCircles(List<dynamic> vibes){
-      circles.clear();
-      Circle vibeCircle;
-      for(dynamic vibe in vibes){
-        // print(vibe['location_id'].toString());
-        // print(LatLng(vibe['latitude'], vibe['longitude']).toString());
-        print(vibe['genre'].toString());
-        double rad = (vibe['genre_total_count']* 15).toDouble();
-        vibeCircle = new Circle(
-          circleId: CircleId(vibe['location_id'].toString()),
-          center:LatLng(vibe['latitude'], vibe['longitude']),
-          fillColor: genreColorMap[vibe['genre'].toString()],
-          radius: rad
-        );
-        circles.add(vibeCircle);
+  double calculateDistance() {
+    double west = bounds.northeast.latitude;
+    double east = bounds.southwest.latitude;
+    double diff = (east - west);
+    if (diff < 0) {
+      diff = -1 * diff;
+    }
+
+    return diff;
+  }
+
+  void drawCircles(List<dynamic> vibes) {
+    circles.clear();
+    Circle vibeCircle;
+    int min = vibes[0]['genre_total_count'];
+    int max = vibes[0]['genre_total_count'];
+    for (dynamic vibe in vibes) {
+      if (vibe['genre_total_count'] > max) {
+        max = vibe['genre_total_count'];
+      } else if (vibe['genre_total_count'] < min) {
+        min = vibe['genre_total_count'];
       }
-      // Circle c = new Circle(
-      // circleId: CircleId("current_location"),
-      // center: LatLng(40.4285364, -86.9240971),
-      // fillColor: Color.fromARGB(128, 51, 153, 153),
-      // strokeColor: Color.fromARGB(160, 51, 153, 153),
-      // radius: 4000);
-      setState(() {
-      });
+    }
+    for (dynamic vibe in vibes) {
+      double diff = calculateDistance();
+      double normalized;
+      if (max == min) {
+        normalized = 1 - 1 / vibe['genre_total_count'];
+      } else {
+        normalized = (vibe['genre_total_count'] - min) / (max - min);
+      }
+      double rad = ((10 + normalized * 15) * 650 * diff).toDouble();
+
+      vibeCircle = new Circle(
+          circleId: CircleId(vibe['location_id'].toString()),
+          center: LatLng(vibe['latitude'], vibe['longitude']),
+          fillColor: genreColorMap[vibe['genre'].toString()],
+          radius: rad);
+      circles.add(vibeCircle);
+    }
+
+    setState(() {});
   }
 
   _getBounds() async {
-    print(this.mapController.toString());
-    LatLngBounds bounds = await this.mapController.getVisibleRegion();
-    print(bounds.northeast.toString());
-    print(bounds.southwest.toString());
+    bounds = await this.mapController.getVisibleRegion();
 
     var lat_min, lon_min, lat_max, lon_max;
 
@@ -97,7 +104,6 @@ class _MapState extends State<MapScreen> {
 
       drawCircles(vibes);
 
-      print("We got the vibes");
       print(map);
     }
   }

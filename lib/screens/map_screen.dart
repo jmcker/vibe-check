@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -26,13 +25,20 @@ class _MapState extends State<MapScreen> {
   //   )
   // ]);
 
-
   final LatLng _center = const LatLng(40.4285364, -86.9240971);
   LocationData currentLocation;
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
     // Timer(Duration(milliseconds: 200), _getBounds);
+  }
+
+  void _onCameraMoveStarted() {
+    print('_onCameraMoveStarted');
+  }
+
+  void _onCamerMoveIdle() {
+    print('_onCamerMoveIdle');
   }
 
   void drawCircles(List<dynamic> vibes){
@@ -47,7 +53,10 @@ class _MapState extends State<MapScreen> {
           circleId: CircleId(vibe['location_id'].toString()),
           center:LatLng(vibe['latitude'], vibe['longitude']),
           fillColor: genreColorMap[vibe['genre'].toString()],
-          radius: rad
+          radius: rad,
+          onTap: () {
+            print('Circle #' + vibe['location_id'] + ' clicked');
+          },
         );
         circles.add(vibeCircle);
       }
@@ -102,53 +111,55 @@ class _MapState extends State<MapScreen> {
     }
   }
 
-  _getLocation() async {}
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-          appBar: AppBar(
-            title: Text('Vibe Check'),
-            backgroundColor: Colors.purple[900],
-            actions: <Widget>[
-              RaisedButton(
-                onPressed: _getBounds,
-                color: Colors.purple,
-                child: Text(
-                  'Show Vibes 🤙',
-                ),
+        appBar: AppBar(
+          title: Text('Vibe Check'),
+          backgroundColor: Colors.purple[900],
+        ),
+        body: Stack(
+          children: <Widget>[
+            GoogleMap(
+              onMapCreated: _onMapCreated,
+              onCameraMoveStarted: _onCameraMoveStarted,
+              onCameraIdle: _onCamerMoveIdle,
+              initialCameraPosition: CameraPosition(
+                target: _center,
+                zoom: 11.0,
               ),
-            ],
-          ),
-          body: Stack(
-            children: <Widget>[
-              GoogleMap(
-                onMapCreated: _onMapCreated,
-                initialCameraPosition: CameraPosition(
-                  target: _center,
-                  zoom: 11.0,
-                ),
-                myLocationEnabled: true,
-                circles: Set<Circle>.of(circles),
-              ),
-              Positioned(
-                  left: 0.0,
-                  right: 0.0,
-                  bottom: 0.0,
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        height: 40.0,
-                        width: 400.0,
-                        color: Colors.white,
-                        child: Image.asset('Assets/legend.PNG'),
-                        // Text("This is a sample txtd to understand FittedBox widget"),
-                      )
-                    ],
-                  )),
-            ],
-          )),
+              compassEnabled: false,
+              myLocationEnabled: true,
+              circles: Set<Circle>.of(circles),
+            ),
+            Positioned(
+              left: 0.0,
+              right: 0.0,
+              bottom: 0.0,
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: FloatingActionButton.extended(
+                      backgroundColor: Colors.purple[900],
+                      onPressed: _getBounds,
+                      label: Text('Show Vibes 🤙'),
+                    ),
+                  ),
+                  Container(
+                    height: 40.0,
+                    width: 400.0,
+                    color: Colors.white,
+                    child: Image.asset('Assets/legend.PNG'),
+                    // Text("This is a sample txtd to understand FittedBox widget"),
+                  ),
+                ],
+              )
+            ),
+          ],
+        )
+      ),
     );
   }
 }

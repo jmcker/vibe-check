@@ -25,26 +25,6 @@ class _MapState extends State<MapScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    _getLocation();
-  }
-
-  _getLocation() async {
-    var location = new Location();
-    try {
-      currentLocation = await location.getLocation();
-
-      print("locationLatitude: ${currentLocation.latitude.toString()}");
-      print("locationLongitude: ${currentLocation.longitude.toString()}");
-      LatLngBounds bounds = await this.mapController.getVisibleRegion();
-      print('#################################');
-      print(bounds.northeast.toString());
-      print(bounds.southwest.toString());
-      print('#################################');
-      setState(
-          () {}); //rebuild the widget after getting the current location of the user
-    } on Exception {
-      currentLocation = null;
-    }
   }
 
   @override

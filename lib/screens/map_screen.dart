@@ -36,16 +36,18 @@ class _MapState extends State<MapScreen> {
   }
 
   void drawCircles(List<dynamic> vibes){
+      circles.clear();
       Circle vibeCircle;
       for(dynamic vibe in vibes){
         // print(vibe['location_id'].toString());
         // print(LatLng(vibe['latitude'], vibe['longitude']).toString());
         print(vibe['genre'].toString());
+        double rad = (vibe['genre_total_count']* 15).toDouble();
         vibeCircle = new Circle(
           circleId: CircleId(vibe['location_id'].toString()),
           center:LatLng(vibe['latitude'], vibe['longitude']),
           fillColor: genreColorMap[vibe['genre'].toString()],
-          radius: 4000
+          radius: rad
         );
         circles.add(vibeCircle);
       }

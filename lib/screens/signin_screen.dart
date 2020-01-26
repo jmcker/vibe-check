@@ -21,6 +21,18 @@ final String spotifyUri = Uri.encodeFull(
     '&show_dialog=true'
 );
 
+final Map<String, RegExp> regExMap= {
+"Classical" : RegExp(r"Classical", caseSensitive: false),
+ "Jazz" : RegExp(r"Jazz|Blues", caseSensitive: false),
+ "R&B" : RegExp(r"R&B", caseSensitive: false),
+ "Country" : RegExp(r"Country", caseSensitive: false),
+ "Pop" : RegExp(r"Pop|Hip hop", caseSensitive: false),
+ "Electronic" : RegExp(r"Electronic|House|Electronica", caseSensitive: false),
+ "Rap" : RegExp(r"Rap", caseSensitive: false),
+ "Rock" : RegExp(r"Rock|Punk", caseSensitive: false),
+ "Metal" : RegExp(r"Metal|Punk", caseSensitive: false),
+};
+
 // ignore: prefer_collection_literals
 final Set<JavascriptChannel> jsChannels = [
   JavascriptChannel(
@@ -145,17 +157,24 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     if (resp.statusCode == 200) {
+
       Map<String, dynamic> artistMap = jsonDecode(resp.body);
       List<dynamic> artistList = artistMap['artists'];
 
-      for (int i = 0; i < artistList.length; i++) {
+      for (int i  = 0; i < artistList.length; i++) {
+        bool foundMatch = false;
+        var tempGenre = artistList[i]["genres"][0];
 
-        // Make sure we actually got a genre
-        // Pick the first genre in the list for now
-        if (artistList[i]['genres'].length == 0) {
-          tracks[i]['genre'] = 'Other';
-        } else {
-          tracks[i]['genre'] = artistList[i]['genres'][0];
+        for (String value in regExMap.keys) {
+          if (regExMap[value].hasMatch(tempGenre)) {
+            tracks[i]["genre"] = value;
+            foundMatch = true;
+            break;
+          }
+        }
+
+        if (foundMatch == false) {
+          tracks[i]["genre"] = "Other";
         }
 
         print(tracks[i]['genre']);

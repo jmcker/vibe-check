@@ -70,6 +70,7 @@ class _MapState extends State<MapScreen> {
         circleId: CircleId(vibe['location_id'].toString()),
         center: LatLng(vibe['latitude'], vibe['longitude']),
         fillColor: genreColorMap[vibe['genre'].toString()],
+        strokeColor: Color.fromARGB(150, 0, 0, 0),
         radius: rad,
         onTap: () {
           print('Circle #' + vibe['location_id'] + ' clicked');

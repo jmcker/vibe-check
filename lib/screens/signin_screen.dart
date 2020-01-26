@@ -36,29 +36,29 @@ final Map<String, RegExp> regExMap = {
 };
 
 // final Map<String, Color> genreColorMap = {
-//   'Classical': Color.fromARGB(180, 249, 205, 172),
-//   'Jazz': Color.fromARGB(180, 242, 164, 159),
-//   'R&B': Color.fromARGB(180, 236, 124, 146),
-//   'Country': Color.fromARGB(180, 230, 85, 134),
-//   'Pop': Color.fromARGB(180, 188, 67, 139),
-//   'Electronic': Color.fromARGB(180, 147, 50, 145),
-//   'Rap': Color.fromARGB(180, 105, 35, 152),
-//   'Rock': Color.fromARGB(180, 85, 28, 123),
-//   'Metal': Color.fromARGB(180, 65, 21, 94),
-//   'Other' : Color.fromARGB(180, 45, 15, 65),
+//   'Classical': Color.fromARGB(200, 249, 205, 172),
+//   'Jazz': Color.fromARGB(200, 242, 164, 159),
+//   'R&B': Color.fromARGB(200, 236, 124, 146),
+//   'Country': Color.fromARGB(200, 230, 85, 134),
+//   'Pop': Color.fromARGB(200, 188, 67, 139),
+//   'Electronic': Color.fromARGB(200, 147, 50, 145),
+//   'Rap': Color.fromARGB(200, 105, 35, 152),
+//   'Rock': Color.fromARGB(200, 85, 28, 123),
+//   'Metal': Color.fromARGB(200, 65, 21, 94),
+//   'Other' : Color.fromARGB(200, 45, 15, 65),
 // };
 
 final Map<String, Color> genreColorMap = {
-  'Classical': Color.fromARGB(180, 205, 133, 63),
-  'Jazz': Color.fromARGB(180, 232, 195, 7),
-  'R&B': Color.fromARGB(180, 65, 12, 255),
-  'Country': Color.fromARGB(180, 88, 255, 0),
-  'Pop': Color.fromARGB(180, 255, 11, 187),
-  'Electronic': Color.fromARGB(180, 12, 232, 224),
-  'Rap': Color.fromARGB(180, 232, 26, 7),
-  'Rock': Color.fromARGB(180, 255, 141, 20),
-  'Metal': Color.fromARGB(180, 140, 140, 140),
-  'Other' : Color.fromARGB(180, 220, 220, 220),
+  'Classical': Color.fromARGB(125, 205, 133, 63),
+  'Jazz': Color.fromARGB(125, 232, 195, 7),
+  'R&B': Color.fromARGB(125, 65, 12, 255),
+  'Country': Color.fromARGB(125, 88, 255, 0),
+  'Pop': Color.fromARGB(125, 255, 11, 187),
+  'Electronic': Color.fromARGB(125, 12, 232, 224),
+  'Rap': Color.fromARGB(125, 232, 26, 7),
+  'Rock': Color.fromARGB(125, 255, 141, 20),
+  'Metal': Color.fromARGB(125, 140, 140, 140),
+  'Other' : Color.fromARGB(125, 220, 220, 220),
 };
 
 // ignore: prefer_collection_literals

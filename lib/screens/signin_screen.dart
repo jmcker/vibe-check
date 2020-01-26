@@ -24,7 +24,7 @@ final String spotifyUri = Uri.encodeFull(
         '&show_dialog=true');
 
 final Map<String, RegExp> regExMap = {
-  'Classical': RegExp(r'classical', caseSensitive: false),
+  'Classical': RegExp(r'classical|soundtrack', caseSensitive: false),
   'Jazz': RegExp(r'jazz|blues', caseSensitive: false),
   'R&B': RegExp(r'r&b', caseSensitive: false),
   'Country': RegExp(r'country', caseSensitive: false),
@@ -32,7 +32,7 @@ final Map<String, RegExp> regExMap = {
   'Electronic': RegExp(r'electronic|house|electronica|bass|.*step|vapor|chillwave|edm|brostep', caseSensitive: false),
   'Rap': RegExp(r'rap', caseSensitive: false),
   'Rock': RegExp(r'rock|punk|indie|alternative', caseSensitive: false),
-  'Metal': RegExp(r'metal|punk|hard', caseSensitive: false)
+  'Metal': RegExp(r'metal|hard', caseSensitive: false)
 };
 
 final Map<String, Color> genreColorMap = {
@@ -71,7 +71,6 @@ class SignIn extends StatelessWidget {
       title: 'Flutter WebView Demo',
       theme: ThemeData(
         primarySwatch: Colors.purple,
-        backgroundColor: Colors.purple,
         primaryColor: Colors.purple,
       ),
       routes: {
@@ -88,7 +87,7 @@ class SignIn extends StatelessWidget {
             withLocalStorage: true,
             hidden: true,
             initialChild: Container(
-              color: Colors.purple,
+              color: Colors.white,
               child: const Center(
                 child: Text('Loading...'),
               ),
@@ -379,14 +378,29 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Image.asset('Assets/logo.png'),
               // child: TextField(controller: _urlCtrl),
             ),
-            RaisedButton(
+            SizedBox(height: 120),
+            SizedBox(
+              
+              height: 100,
+              width: 300,
+              child:  RaisedButton(
+              
               onPressed: () {
                 Navigator.of(context).pushNamed('/widget');
               },
-              child: const Text('Authorize Spotify'),
+              child: new Text(
+                'Authorize Spotify', 
+                style: new TextStyle(
+                  fontSize: 30.0, 
+                  color: Colors.white),
+                ),
+              
               color: Colors.purple,
               textColor: Colors.white,
+              
             ),
+            )
+           
           ],
         ),
       ),

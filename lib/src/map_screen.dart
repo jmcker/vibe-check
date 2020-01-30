@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'genres.dart';
 
@@ -140,13 +143,69 @@ class _MapState extends State<MapScreen> {
         infoWindow: new InfoWindow(
           title: 'Song: ' + vibe['title'],
           snippet: 'Artist: ' + vibe['artist'], // This gets cut off if added right now '\nAlbum: ' + vibe['album'] + '\nVibes: ' + vibe['top_track_vibe_count'].toString(),
-        )
+          onTap: () { createBottomSheet(vibe); }
+        ),
       );
 
       markers.add(vibeMarker);
     }
 
     setState(() {});
+  }
+
+  Future<Widget> createBottomSheet(vibe) {
+    return showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return ClipRect(
+          child: Container(
+            color: Colors.white,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(top: 15, bottom: 10, left: 5, right: 5),
+                  child: RichText(
+                    text: TextSpan(
+                      style: TextStyle(
+                        fontFamily: 'Sans-serif',
+                        fontSize: 18,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.black,
+                        height: 1.7
+                      ),
+                      children: <TextSpan>[
+                        TextSpan(text: 'Track Details\n\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28, height: 1)),
+                        TextSpan(text: 'Title: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(
+                          text: vibe['title'] + '\n',
+                          style: TextStyle(color: Colors.blue),
+                          recognizer: new TapGestureRecognizer()
+                          ..onTap = () => launch('https://open.spotify.com/track/' + vibe['spotify_track_id'])
+                        ),
+                        TextSpan(text: 'Artist: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(
+                          text: vibe['artist'] + '\n',
+                          style: TextStyle(color: Colors.blue),
+                          recognizer: new TapGestureRecognizer()
+                          ..onTap = () => launch('https://open.spotify.com/artist/' + vibe['spotify_artist_id'])
+                        ),
+                        TextSpan(text: 'Album: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: vibe['album'] + '\n'),
+                        TextSpan(text: 'Vibes: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: vibe['top_track_count'].toString() + '\n'),
+                      ]
+                    ),
+                    overflow: TextOverflow.ellipsis
+                  )
+                )
+              ],
+            ),
+          )
+        );
+      }
+    );
   }
 
   @override

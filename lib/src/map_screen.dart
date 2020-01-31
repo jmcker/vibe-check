@@ -18,8 +18,8 @@ class MapScreen extends StatefulWidget {
 class _MapState extends State<MapScreen> {
   GoogleMapController mapController;
   BitmapDescriptor myIcon;
-  Set<Circle> circles = {}; // CLASS MEMBER, MAP OF Circle
-  Set<Marker> markers = {};
+  Set<Circle> circles = Set<Circle>();
+  Set<Marker> markers = Set<Marker>();
 
   final LatLng _mapDefault = const LatLng(40.4285364, -86.9240971);
 
@@ -142,7 +142,7 @@ class _MapState extends State<MapScreen> {
         //icon: myIcon,
         infoWindow: new InfoWindow(
           title: 'Song: ' + vibe['title'],
-          snippet: 'Artist: ' + vibe['artist'], // This gets cut off if added right now '\nAlbum: ' + vibe['album'] + '\nVibes: ' + vibe['top_track_vibe_count'].toString(),
+          snippet: 'Artist: ' + vibe['artist'],
           onTap: () { createBottomSheet(vibe); }
         ),
       );

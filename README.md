@@ -1,10 +1,27 @@
 # vibe-check #
 
-A new Flutter project.
+Mobile application for vibe-check.
+
+## API Keys ##
+
+Add your Google Maps API keys:
+
+1. Create `secrets.ps1` for PowerShell:
+```powershell
+${ENV:MAPS_IOS_API_KEY}=''
+${ENV:MAPS_ANDROID_API_KEY}=''
+```
+
+2. Create `secrets.sh` for Bash:
+```bash
+export MAPS_IOS_API_KEY=
+export MAPS_ANDROID_API_KEY=
+```
+
+3. Source the scripts (`./secrets.ps1` or `source ./secrets.sh`) before running `flutter run`.
+
 
 ## Getting Started ##
-
-This project is a starting point for a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:
 

@@ -13,7 +13,7 @@
         android:icon="@mipmap/launcher_icon">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyD3O6hn_Sl5oEgFuUD0nbeliuEAGJ-iWUA" />
+            android:value="${mapsAPIKey}" />
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
